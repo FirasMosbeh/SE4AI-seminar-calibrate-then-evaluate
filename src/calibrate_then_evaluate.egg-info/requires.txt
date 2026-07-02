@@ -1,0 +1,9 @@
+
+[anthropic]
+anthropic>=0.40
+
+[dev]
+pytest>=8
+
+[openai]
+openai>=1.40

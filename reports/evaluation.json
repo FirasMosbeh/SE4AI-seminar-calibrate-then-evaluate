@@ -1,0 +1,21 @@
+{
+  "n_items": 40,
+  "variants": [
+    "v1_plain",
+    "v2_rubric",
+    "v3_terse"
+  ],
+  "win_rate_per_variant": {
+    "v1_plain": 50.0,
+    "v2_rubric": 45.0,
+    "v3_terse": 52.5
+  },
+  "min_pp": 45.0,
+  "median_pp": 50.0,
+  "max_pp": 52.5,
+  "range_pp": 7.5,
+  "range_threshold_pp": 15.0,
+  "stable": true,
+  "promotion_allowed": true,
+  "promotion_threshold_pp": 50.0
+}

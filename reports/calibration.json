@@ -1,0 +1,16 @@
+{
+  "judge_family": "mock",
+  "n_pairs": 50,
+  "n_variants": 3,
+  "n_judgements": 300,
+  "position_bias_pp": 0.33,
+  "verbosity_bias_pp": -1.92,
+  "self_preference_pp": 4.17,
+  "threshold_pp": 10.0,
+  "passed": true,
+  "per_variant_position_pp": {
+    "v1_plain": -3.0,
+    "v2_rubric": 6.0,
+    "v3_terse": -2.0
+  }
+}
