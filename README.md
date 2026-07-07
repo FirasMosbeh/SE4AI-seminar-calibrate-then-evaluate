@@ -1,15 +1,17 @@
 # Calibrate-Then-Evaluate
 
-Reference implementation of the **Calibrate-Then-Evaluate** protocol proposed in:
+Reference implementation of the **Calibrate-Then-Evaluate** protocol from:
 
-> *Prompt Sensitivity in LLM Evaluation Frameworks: A Comparative Literature
-> Review on Reliability and Reproducibility* — SE4AI Seminar, TUM, Summer 2026.
+> *Prompt Sensitivity in LLM Evaluation Frameworks: Why More Stable Scores Do Not Necessarily Mean
+> Better Measurements — SE4AI Seminar, TUM, Summer 2026.
 
-The paper's central claim, made executable: **averaging over many prompt
-variants reduces variance but not systematic judge bias** — formally, the
-observed score decomposes as `s_i = q + b + ε_i`, and multi-prompt averaging
-estimates `q + b`, never `q`. This repo therefore measures `b` *first*
-(Phase 1) and only then evaluates with variance made visible (Phase 2).
+The paper argues that averaging scores over many prompt variants reduces
+random variance, but not a judge's systematic bias. Formally, the observed
+score decomposes as `s_i = q + b + ε_i`, so multi-prompt averaging only ever
+gives you `q + b`, never the true quality `q`. This repo implements that
+idea directly: it measures the bias term `b` first (Phase 1), then runs the
+evaluation with the remaining variance reported explicitly instead of hidden
+behind an average (Phase 2).
 
 ```
 Phase 1 — Calibration (once per judge / task type)
@@ -31,13 +33,13 @@ pip install -e ".[dev]"
 python scripts/generate_sample_data.py   # regenerate the demo datasets
 pytest                                   # 8 tests, incl. bias-injection checks
 
-# Full protocol with the free deterministic MockJudge:
+# Run the full protocol with the free deterministic MockJudge:
 cte pipeline --judge mock
 
-# Watch Phase 1 catch an injected verbosity bias:
+# Inject a verbosity bias and see Phase 1 flag it:
 cte pipeline --judge mock --mock-verbosity-bias 0.3
 
-# The paper's key result, empirically (bias survives averaging over k):
+# Reproduce the paper's main result: bias survives averaging over k:
 python examples/demo_biased_judge.py
 ```
 
@@ -49,13 +51,12 @@ export ANTHROPIC_API_KEY=sk-ant-...
 cte pipeline --judge anthropic
 ```
 
-Model names are configurable via `CTE_ANTHROPIC_MODEL` / `CTE_OPENAI_MODEL`;
+Model names are configurable via `CTE_ANTHROPIC_MODEL` / `CTE_OPENAI_MODEL`.
 
-Cost estimate for the defaults: Phase 1 = 50 pairs × 3 variants × 2 orders
-= **300 judge calls (once per judge/task type)**; Phase 2 = 40 items × 3
-variants × 2 orders = **240 calls per model version** — the 3× (not 15×)
-regime argued for in the paper.
-
+Cost estimate with the defaults: Phase 1 uses 50 pairs × 3 variants × 2
+orders = **300 judge calls** (once per judge/task type). Phase 2 uses 40
+items × 3 variants × 2 orders = **240 calls per model version**. That's the
+3× cost the paper argues for, instead of the usual 15×.
 
 ## Repository layout
 
@@ -71,11 +72,11 @@ examples/                # demo: bias survives averaging
 .github/workflows/       # the CI regression gate
 ```
 
-## Limitations:
+## Limitations
 
-* Sample data is synthetic; a real study needs human-labelled equal-quality
-  pairs and genuine model outputs.
-* The self-preference probe uses a `[mock]` tag; with a real judge you would
-  insert actual outputs from the judge's own model family.
-* Thresholds (10 pp / 15 pp) are the paper's heuristics — validating them is
-  exactly the future work the paper proposes.
+- Sample data is synthetic; a real study would need human-labelled
+  equal-quality pairs and real model outputs.
+- The self-preference probe uses a `[mock]` tag; with a real judge you'd
+  insert actual outputs from that judge's own model family instead.
+- The 10pp / 15pp thresholds are heuristics from the paper. Whether they
+  actually hold up on real data is not tested here — that's future work.
